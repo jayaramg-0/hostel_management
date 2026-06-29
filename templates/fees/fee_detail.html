@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Fee Details - HMS{% endblock %}
+{% block page_title %}Fee Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>{{ fee.get_fee_type_display }}</span>
+                {% if fee.status == 'paid' %}<span class="badge bg-success fs-6">Paid</span>{% elif fee.is_overdue %}<span class="badge bg-danger fs-6">Overdue</span>{% else %}<span class="badge bg-warning fs-6">Unpaid</span>{% endif %}
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-6"><h2 class="text-primary">₹{{ fee.amount|floatformat:2 }}</h2><small class="text-muted">Fee Amount</small></div>
+                </div>
+                <table class="table table-borderless">
+                    <tr><td class="text-muted" style="width:150px;">Student</td><td>{{ fee.student.name }} ({{ fee.student.student_id }})</td></tr>
+                    <tr><td class="text-muted">Room</td><td>{{ fee.student.room|default:'Not Assigned' }}</td></tr>
+                    <tr><td class="text-muted">Due Date</td><td>{{ fee.due_date|date:"M d, Y" }}</td></tr>
+                    {% if fee.payment_date %}<tr><td class="text-muted">Payment Date</td><td>{{ fee.payment_date|date:"M d, Y" }}</td></tr>{% endif %}
+                    {% if fee.remarks %}<tr><td class="text-muted">Remarks</td><td>{{ fee.remarks }}</td></tr>{% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        {% if user.is_admin_user %}
+        <div class="card">
+            <div class="card-header">Actions</div>
+            <div class="card-body d-grid gap-2">
+                <a href="{% url 'fees:update' fee.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil me-2"></i>Edit</a>
+                {% if fee.status == 'unpaid' %}
+                <a href="{% url 'fees:mark_paid' fee.pk %}" class="btn btn-success"><i class="bi bi-check-lg me-2"></i>Mark as Paid</a>
+                {% endif %}
+                <a href="{% url 'fees:delete' fee.pk %}" class="btn btn-outline-danger"><i class="bi bi-trash me-2"></i>Delete</a>
+            </div>
+        </div>
+        {% endif %}
+        <a href="{% url 'fees:list' %}" class="btn btn-outline-secondary w-100 mt-3">Back to List</a>
+    </div>
+</div>
+{% endblock %}

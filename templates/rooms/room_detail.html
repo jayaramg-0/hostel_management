@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block title %}Room {{ room.room_number }} - HMS{% endblock %}
+{% block page_title %}Room Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px; font-size: 1.5rem;">
+                    <i class="bi bi-door-open"></i>
+                </div>
+                <h4>Room {{ room.room_number }}</h4>
+                <p class="text-muted mb-2">Floor {{ room.floor }}</p>
+                <span class="badge bg-{% if room.status == 'available' %}success{% else %}warning{% endif %} fs-6">
+                    {{ room.get_status_display }}
+                </span>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Room Info</div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <td class="text-muted">Capacity</td>
+                        <td>{{ room.capacity }} beds</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Occupied</td>
+                        <td>{{ room.occupied_beds }} beds</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Available</td>
+                        <td>{{ room.available_beds }} beds</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Occupancy</td>
+                        <td>{{ room.occupancy_percentage }}%</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Actions</div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    {% if room.status == 'available' %}
+                    <a href="{% url 'rooms:allocate' room.pk %}" class="btn btn-success">
+                        <i class="bi bi-person-plus me-2"></i>Allocate Student
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'rooms:update' room.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-2"></i>Edit Room
+                    </a>
+                    <a href="{% url 'rooms:delete' room.pk %}" class="btn btn-outline-danger">
+                        <i class="bi bi-trash me-2"></i>Delete Room
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Students in Room</span>
+                {% if room.status == 'available' %}
+                <a href="{% url 'rooms:allocate' room.pk %}" class="btn btn-sm btn-success">
+                    <i class="bi bi-person-plus me-2"></i>Add Student
+                </a>
+                {% endif %}
+            </div>
+            <div class="card-body p-0">
+                {% if students %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Student</th>
+                                <th>Department</th>
+                                <th>Year</th>
+                                <th>Phone</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if student.profile_photo %}
+                                        <img src="{{ student.profile_photo.url }}" alt="" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                        {% else %}
+                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px; font-size: 0.75rem;">
+                                            {{ student.name|slice:":1"|upper }}
+                                        </div>
+                                        {% endif %}
+                                        <div>
+                                            <a href="{% url 'students:detail' student.pk %}">{{ student.name }}</a>
+                                            <small class="d-block text-muted">{{ student.student_id }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ student.department }}</td>
+                                <td>{{ student.get_year_display }}</td>
+                                <td>{{ student.phone }}</td>
+                                <td>
+                                    <a href="{% url 'rooms:vacate' room.pk student.pk %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-box-arrow-right"></i> Vacate
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-people text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2 mb-0">No students in this room</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% if room.description %}
+        <div class="card">
+            <div class="card-header">Description</div>
+            <div class="card-body">
+                <p class="mb-0">{{ room.description }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

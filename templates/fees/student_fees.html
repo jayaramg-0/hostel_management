@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block title %}My Fees - HMS{% endblock %}
+{% block page_title %}My Fee Records{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card bg-success text-white"><div class="card-body text-center"><h3>₹{{ stats.paid|floatformat:0 }}</h3><p class="mb-0">Total Paid</p></div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-danger text-white"><div class="card-body text-center"><h3>₹{{ stats.pending|floatformat:0 }}</h3><p class="mb-0">Pending</p></div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card bg-warning text-dark"><div class="card-body text-center"><h3>{{ stats.overdue_count }}</h3><p class="mb-0">Overdue</p></div></div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Fee History</div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr><th>Type</th><th>Amount</th><th>Due Date</th><th>Payment Date</th><th>Status</th></tr>
+                </thead>
+                <tbody>
+                    {% for fee in fees %}
+                    <tr>
+                        <td>{{ fee.get_fee_type_display }}</td>
+                        <td>₹{{ fee.amount|floatformat:2 }}</td>
+                        <td>{{ fee.due_date|date:"M d, Y" }}</td>
+                        <td>{{ fee.payment_date|date:"M d, Y"|default:'-' }}</td>
+                        <td>
+                            {% if fee.status == 'paid' %}<span class="badge bg-success">Paid</span>
+                            {% elif fee.is_overdue %}<span class="badge bg-danger">Overdue</span>
+                            {% else %}<span class="badge bg-warning">Unpaid</span>{% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="5" class="text-center py-4">No fee records found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

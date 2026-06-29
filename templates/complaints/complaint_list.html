@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% block title %}Complaints - HMS{% endblock %}
+{% block page_title %}Complaints{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <span class="badge bg-warning me-2">Pending: {{ stats.pending }}</span>
+        <span class="badge bg-info me-2">In Progress: {{ stats.in_progress }}</span>
+        <span class="badge bg-success">Resolved: {{ stats.resolved }}</span>
+    </div>
+    {% if user.is_student_user %}
+    <a href="{% url 'complaints:create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>Submit Complaint
+    </a>
+    {% endif %}
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">{{ form.search }}</div>
+            <div class="col-md-3">{{ form.category }}</div>
+            <div class="col-md-3">{{ form.status }}</div>
+            <div class="col-md-2"><button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i></button></div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Subject</th>
+                        {% if user.is_admin_user %}<th>Student</th>{% endif %}
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for complaint in page_obj %}
+                    <tr>
+                        <td><strong>{{ complaint.complaint_id }}</strong></td>
+                        <td>{{ complaint.subject|truncatechars:40 }}</td>
+                        {% if user.is_admin_user %}<td>{{ complaint.student.name }}</td>{% endif %}
+                        <td>{{ complaint.get_category_display }}</td>
+                        <td>{{ complaint.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <span class="badge bg-{% if complaint.status == 'pending' %}warning{% elif complaint.status == 'in_progress' %}info{% else %}success{% endif %}">
+                                {{ complaint.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'complaints:detail' complaint.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-eye"></i></a>
+                            {% if user.is_admin_user and complaint.status != 'resolved' %}
+                            <a href="{% url 'complaints:update' complaint.pk %}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="{% if user.is_admin_user %}7{% else %}6{% endif %}" class="text-center py-4">No complaints found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+        {% for num in page_obj.paginator.page_range %}{% if page_obj.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>{% endif %}{% endfor %}
+        {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

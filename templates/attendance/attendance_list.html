@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block title %}Attendance - HMS{% endblock %}
+{% block page_title %}Attendance Records{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div></div>
+    <a href="{% url 'attendance:mark' %}" class="btn btn-primary">
+        <i class="bi bi-calendar-check me-2"></i>Mark Attendance
+    </a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                {{ form.student }}
+            </div>
+            <div class="col-md-2">
+                {{ form.from_date }}
+            </div>
+            <div class="col-md-2">
+                {{ form.to_date }}
+            </div>
+            <div class="col-md-2">
+                {{ form.status }}
+            </div>
+            <div class="col-md-3">
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="bi bi-search me-2"></i>Filter
+                </button>
+                <a href="{% url 'attendance:report' %}" class="btn btn-outline-info">
+                    <i class="bi bi-bar-chart me-2"></i>Report
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Student</th>
+                        <th>Department</th>
+                        <th>Status</th>
+                        <th>Marked By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for att in page_obj %}
+                    <tr>
+                        <td>{{ att.date|date:"M d, Y" }}</td>
+                        <td>
+                            <a href="{% url 'students:detail' att.student.pk %}">{{ att.student.name }}</a>
+                            <small class="d-block text-muted">{{ att.student.student_id }}</small>
+                        </td>
+                        <td>{{ att.student.department }}</td>
+                        <td>
+                            <span class="badge bg-{% if att.status == 'present' %}success{% else %}danger{% endif %}">
+                                {{ att.get_status_display }}
+                            </span>
+                        </td>
+                        <td>{{ att.marked_by.get_full_name|default:att.marked_by.username }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-2 mb-0">No attendance records found</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>
+        {% endif %}
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+        {% endif %}
+        {% endfor %}
+        {% if page_obj.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

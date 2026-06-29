@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Visitor Details - HMS{% endblock %}
+{% block page_title %}Visitor Details{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr><td class="text-muted" style="width:150px;">Visitor Name</td><td><strong>{{ visitor.visitor_name }}</strong></td></tr>
+                    <tr><td class="text-muted">Phone</td><td>{{ visitor.phone }}</td></tr>
+                    <tr><td class="text-muted">Visiting</td><td><a href="{% url 'students:detail' visitor.student.pk %}">{{ visitor.student.name }}</a></td></tr>
+                    <tr><td class="text-muted">Relationship</td><td>{{ visitor.get_relationship_display }}</td></tr>
+                    <tr><td class="text-muted">Purpose</td><td>{{ visitor.purpose|default:'-' }}</td></tr>
+                    <tr><td class="text-muted">ID Proof</td><td>{{ visitor.id_proof|default:'-' }}</td></tr>
+                    <tr><td class="text-muted">Entry Time</td><td>{{ visitor.entry_time|date:"M d, Y H:i" }}</td></tr>
+                    <tr><td class="text-muted">Exit Time</td><td>{{ visitor.exit_time|date:"M d, Y H:i"|default:'Still In' }}</td></tr>
+                    <tr><td class="text-muted">Status</td><td>{% if visitor.exit_time %}<span class="badge bg-secondary">Checked Out</span>{% else %}<span class="badge bg-success">Currently In</span>{% endif %}</td></tr>
+                    {% if visitor.remarks %}<tr><td class="text-muted">Remarks</td><td>{{ visitor.remarks }}</td></tr>{% endif %}
+                </table>
+                <hr>
+                <div class="d-flex gap-2">
+                    {% if not visitor.exit_time %}
+                    <a href="{% url 'visitors:checkout' visitor.pk %}" class="btn btn-warning">
+                        <i class="bi bi-box-arrow-right me-2"></i>Checkout
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'visitors:list' %}" class="btn btn-outline-secondary">Back to List</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

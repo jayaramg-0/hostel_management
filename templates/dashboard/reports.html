@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block title %}Reports - HMS{% endblock %}
+{% block page_title %}Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white"><div class="card-body text-center"><h3>{{ stats.students }}</h3><p class="mb-0">Total Students</p></div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white"><div class="card-body text-center"><h3>{{ stats.rooms }}</h3><p class="mb-0">Total Rooms</p></div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white"><div class="card-body text-center"><h3>{{ stats.occupancy }}%</h3><p class="mb-0">Occupancy Rate</p></div></div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-dark"><div class="card-body text-center"><h3>₹{{ stats.pending_fees|floatformat:0 }}</h3><p class="mb-0">Pending Fees</p></div></div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Room Occupancy</div>
+            <div class="card-body"><canvas id="occupancyChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Complaints Status</div>
+            <div class="card-body"><canvas id="complaintsChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Fee Collection</div>
+            <div class="card-body"><canvas id="feesChart"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Monthly Attendance</div>
+            <div class="card-body"><canvas id="attendanceChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span>Generate Reports</span>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people fs-1 text-primary mb-3"></i>
+                        <h5>Student Report</h5>
+                        <p class="text-muted small">Complete list of all students with room details</p>
+                        <a href="{% url 'dashboard:export_students' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-download me-2"></i>Export Excel</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-currency-rupee fs-1 text-success mb-3"></i>
+                        <h5>Fee Report</h5>
+                        <p class="text-muted small">Fee collection status and pending dues</p>
+                        <a href="{% url 'dashboard:export_fees' %}" class="btn btn-outline-success btn-sm"><i class="bi bi-download me-2"></i>Export Excel</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-3">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <i class="bi bi-calendar-check fs-1 text-info mb-3"></i>
+                        <h5>Attendance Report</h5>
+                        <p class="text-muted small">Monthly attendance summary</p>
+                        <a href="{% url 'dashboard:export_attendance' %}" class="btn btn-outline-info btn-sm"><i class="bi bi-download me-2"></i>Export Excel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Occupancy Chart
+new Chart(document.getElementById('occupancyChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Occupied', 'Available'],
+        datasets: [{data: [{{ chart_data.occupied }}, {{ chart_data.available }}], backgroundColor: ['#0d6efd', '#e9ecef']}]
+    },
+    options: {responsive: true, maintainAspectRatio: false}
+});
+
+// Complaints Chart
+new Chart(document.getElementById('complaintsChart'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Pending', 'In Progress', 'Resolved'],
+        datasets: [{data: [{{ chart_data.complaints_pending }}, {{ chart_data.complaints_progress }}, {{ chart_data.complaints_resolved }}], backgroundColor: ['#ffc107', '#17a2b8', '#28a745']}]
+    },
+    options: {responsive: true, maintainAspectRatio: false}
+});
+
+// Fees Chart
+new Chart(document.getElementById('feesChart'), {
+    type: 'bar',
+    data: {
+        labels: ['Paid', 'Unpaid', 'Overdue'],
+        datasets: [{label: 'Amount (₹)', data: [{{ chart_data.fees_paid }}, {{ chart_data.fees_unpaid }}, {{ chart_data.fees_overdue }}], backgroundColor: ['#28a745', '#ffc107', '#dc3545']}]
+    },
+    options: {responsive: true, maintainAspectRatio: false, scales: {y: {beginAtZero: true}}}
+});
+
+// Attendance Chart
+new Chart(document.getElementById('attendanceChart'), {
+    type: 'line',
+    data: {
+        labels: {{ chart_data.attendance_labels|safe }},
+        datasets: [{label: 'Present %', data: {{ chart_data.attendance_data|safe }}, borderColor: '#0d6efd', tension: 0.1, fill: false}]
+    },
+    options: {responsive: true, maintainAspectRatio: false, scales: {y: {beginAtZero: true, max: 100}}}
+});
+</script>
+{% endblock %}

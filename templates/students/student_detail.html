@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ student.name }} - HMS{% endblock %}
+{% block page_title %}Student Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if student.profile_photo %}
+                <img src="{{ student.profile_photo.url }}" alt="Profile" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px; font-size: 2.5rem;">
+                    {{ student.name|slice:":1"|upper }}
+                </div>
+                {% endif %}
+                <h4>{{ student.name }}</h4>
+                <p class="text-muted mb-2">{{ student.student_id }}</p>
+                {% if student.is_active %}
+                <span class="badge bg-success">Active</span>
+                {% else %}
+                <span class="badge bg-secondary">Inactive</span>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Quick Stats</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <span class="text-muted">Attendance</span>
+                    <span class="badge bg-{% if attendance_percentage >= 75 %}success{% else %}danger{% endif %}">
+                        {{ attendance_percentage }}%
+                    </span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-muted">Pending Fees</span>
+                    <span class="text-{% if pending_fees > 0 %}danger{% else %}success{% endif %}">
+                        ₹{{ pending_fees|floatformat:0 }}
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Actions</div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'students:update' student.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-2"></i>Edit Student
+                    </a>
+                    <a href="{% url 'attendance:student' student.pk %}" class="btn btn-outline-info">
+                        <i class="bi bi-calendar-check me-2"></i>View Attendance
+                    </a>
+                    <a href="{% url 'fees:student_fees' student.pk %}" class="btn btn-outline-warning">
+                        <i class="bi bi-cash me-2"></i>View Fees
+                    </a>
+                    <a href="{% url 'visitors:history' student.pk %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-person-badge me-2"></i>Visitor History
+                    </a>
+                    <a href="{% url 'students:delete' student.pk %}" class="btn btn-outline-danger">
+                        <i class="bi bi-trash me-2"></i>Delete Student
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">Personal Information</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="text-muted" style="width: 150px;">Gender</td>
+                                <td>{{ student.get_gender_display }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Date of Birth</td>
+                                <td>{{ student.date_of_birth|date:"F d, Y" }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Email</td>
+                                <td>{{ student.email }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Phone</td>
+                                <td>{{ student.phone }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-borderless">
+                            <tr>
+                                <td class="text-muted" style="width: 150px;">Department</td>
+                                <td>{{ student.department }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Year</td>
+                                <td>{{ student.get_year_display }}</td>
+                            </tr>
+                            <tr>
+                                <td class="text-muted">Admission Date</td>
+                                <td>{{ student.admission_date|date:"F d, Y" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <hr>
+                <h6 class="text-muted mb-3">Address</h6>
+                <p class="mb-0">{{ student.address }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Parent/Guardian Information</div>
+            <div class="card-body">
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <td class="text-muted" style="width: 150px;">Parent Name</td>
+                        <td>{{ student.parent_name }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Contact</td>
+                        <td>{{ student.parent_contact }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Room Information</div>
+            <div class="card-body">
+                {% if student.room %}
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <td class="text-muted" style="width: 150px;">Room Number</td>
+                        <td>
+                            <a href="{% url 'rooms:detail' student.room.pk %}">
+                                {{ student.room.room_number }}
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Floor</td>
+                        <td>{{ student.room.floor }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Capacity</td>
+                        <td>{{ student.room.capacity }} beds</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Occupied</td>
+                        <td>{{ student.room.occupied_beds }} / {{ student.room.capacity }}</td>
+                    </tr>
+                </table>
+                {% else %}
+                <div class="text-center py-3">
+                    <i class="bi bi-house text-muted" style="font-size: 2rem;"></i>
+                    <p class="text-muted mt-2 mb-0">No room allocated</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

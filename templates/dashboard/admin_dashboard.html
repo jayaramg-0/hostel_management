@@ -1,0 +1,330 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - HMS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value">{{ total_students }}</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-people"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value">{{ total_rooms }}</div>
+                    <div class="stat-label">Total Rooms</div>
+                </div>
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-door-open"></i>
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-success">{{ available_rooms }} available</small> |
+                <small class="text-warning">{{ occupied_rooms }} full</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value">{{ today_visitors }}</div>
+                    <div class="stat-label">Today's Visitors</div>
+                </div>
+                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-person-badge"></i>
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-primary">{{ visitors_currently_in }} currently in</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value text-success">₹{{ collected_fees|floatformat:0 }}</div>
+                    <div class="stat-label">Fee Collected</div>
+                </div>
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-danger">₹{{ pending_fees|floatformat:0 }} pending</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Second Row Stats -->
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value text-warning">{{ pending_complaints }}</div>
+                    <div class="stat-label">Pending Complaints</div>
+                </div>
+                <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value text-info">{{ pending_leaves }}</div>
+                    <div class="stat-label">Pending Leave Requests</div>
+                </div>
+                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-calendar-x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value">{{ present_today }}</div>
+                    <div class="stat-label">Present Today</div>
+                </div>
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-check-circle"></i>
+                </div>
+            </div>
+            <div class="mt-2">
+                <small class="text-danger">{{ absent_today }} absent</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value">{{ total_occupied }}/{{ total_capacity }}</div>
+                    <div class="stat-label">Bed Occupancy</div>
+                </div>
+                <div class="stat-icon bg-purple bg-opacity-10 text-purple" style="color: #8b5cf6;">
+                    <i class="bi bi-house"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">Quick Actions</div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{% url 'students:create' %}" class="btn btn-primary">
+                        <i class="bi bi-person-plus me-2"></i>Add Student
+                    </a>
+                    <a href="{% url 'rooms:create' %}" class="btn btn-success">
+                        <i class="bi bi-door-open me-2"></i>Add Room
+                    </a>
+                    <a href="{% url 'attendance:mark' %}" class="btn btn-info text-white">
+                        <i class="bi bi-calendar-check me-2"></i>Mark Attendance
+                    </a>
+                    <a href="{% url 'visitors:create' %}" class="btn btn-warning">
+                        <i class="bi bi-person-badge me-2"></i>Register Visitor
+                    </a>
+                    <a href="{% url 'notices:create' %}" class="btn btn-secondary">
+                        <i class="bi bi-megaphone me-2"></i>Post Notice
+                    </a>
+                    <a href="{% url 'fees:create' %}" class="btn btn-dark">
+                        <i class="bi bi-cash me-2"></i>Add Fee Record
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Recent Complaints</span>
+                <a href="{% url 'complaints:list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_complaints %}
+                <ul class="list-group list-group-flush">
+                    {% for complaint in recent_complaints %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ complaint.subject|truncatechars:30 }}</strong>
+                                <small class="d-block text-muted">{{ complaint.student.name }}</small>
+                            </div>
+                            <span class="badge bg-{% if complaint.status == 'pending' %}warning{% elif complaint.status == 'in_progress' %}info{% else %}success{% endif %}">
+                                {{ complaint.get_status_display }}
+                            </span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0">No recent complaints</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Pending Leave Requests</span>
+                <a href="{% url 'leave_requests:list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_leaves %}
+                <ul class="list-group list-group-flush">
+                    {% for leave in recent_leaves %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ leave.student.name }}</strong>
+                                <small class="d-block text-muted">{{ leave.from_date }} - {{ leave.to_date }}</small>
+                            </div>
+                            <span class="badge bg-{% if leave.status == 'pending' %}warning{% elif leave.status == 'approved' %}success{% else %}danger{% endif %}">
+                                {{ leave.get_status_display }}
+                            </span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0">No pending requests</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Recent Visitors</span>
+                <a href="{% url 'visitors:list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_visitors %}
+                <ul class="list-group list-group-flush">
+                    {% for visitor in recent_visitors %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ visitor.visitor_name }}</strong>
+                                <small class="d-block text-muted">To: {{ visitor.student.name }}</small>
+                            </div>
+                            {% if visitor.exit_time %}
+                            <span class="badge bg-secondary">Checked Out</span>
+                            {% else %}
+                            <span class="badge bg-success">In</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0">No recent visitors</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Room Occupancy Chart -->
+<div class="row mt-4">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">Room Occupancy</div>
+            <div class="card-body">
+                <canvas id="roomChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">Students by Department</div>
+            <div class="card-body">
+                <canvas id="deptChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Room Occupancy Chart
+const roomCtx = document.getElementById('roomChart').getContext('2d');
+new Chart(roomCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Occupied Beds', 'Available Beds'],
+        datasets: [{
+            data: [{{ total_occupied }}, {% widthratio total_occupied total_capacity total_capacity %}],
+            backgroundColor: ['#4f46e5', '#e5e7eb'],
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Department Chart
+const deptCtx = document.getElementById('deptChart').getContext('2d');
+new Chart(deptCtx, {
+    type: 'bar',
+    data: {
+        labels: [{% for item in students_by_department %}'{{ item.department }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Students',
+            data: [{% for item in students_by_department %}{{ item.count }}{% if not forloop.last %}, {% endif %}{% endfor %}],
+            backgroundColor: '#4f46e5'
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

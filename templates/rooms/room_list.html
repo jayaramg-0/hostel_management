@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Rooms - HMS{% endblock %}
+{% block page_title %}Room Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <span class="badge bg-primary me-2">Total: {{ total_rooms }}</span>
+        <span class="badge bg-success me-2">Available: {{ available_rooms }}</span>
+        <span class="badge bg-warning">Full: {{ full_rooms }}</span>
+    </div>
+    <a href="{% url 'rooms:create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-2"></i>Add Room
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="search" class="form-control" placeholder="Search room number..." value="{{ search }}">
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="available" {% if status == 'available' %}selected{% endif %}>Available</option>
+                    <option value="full" {% if status == 'full' %}selected{% endif %}>Full</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="floor" class="form-select">
+                    <option value="">All Floors</option>
+                    {% for f in floors %}
+                    <option value="{{ f }}" {% if floor|stringformat:"s" == f|stringformat:"s" %}selected{% endif %}>Floor {{ f }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search me-2"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Rooms Grid -->
+<div class="row g-4">
+    {% for room in page_obj %}
+    <div class="col-sm-6 col-lg-4 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="mb-1">Room {{ room.room_number }}</h5>
+                        <small class="text-muted">Floor {{ room.floor }}</small>
+                    </div>
+                    <span class="badge bg-{% if room.status == 'available' %}success{% else %}warning{% endif %}">
+                        {{ room.get_status_display }}
+                    </span>
+                </div>
+                
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1">
+                        <small>Occupancy</small>
+                        <small>{{ room.occupied_beds }}/{{ room.capacity }}</small>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-{% if room.occupancy_percentage >= 100 %}warning{% else %}primary{% endif %}" 
+                             style="width: {{ room.occupancy_percentage }}%"></div>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-1">
+                    <a href="{% url 'rooms:detail' room.pk %}" class="btn btn-sm btn-outline-primary flex-grow-1">
+                        <i class="bi bi-eye"></i> View
+                    </a>
+                    <a href="{% url 'rooms:update' room.pk %}" class="btn btn-sm btn-outline-warning">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                    <a href="{% url 'rooms:delete' room.pk %}" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-door-open text-muted" style="font-size: 3rem;"></i>
+                <p class="text-muted mt-2 mb-0">No rooms found</p>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

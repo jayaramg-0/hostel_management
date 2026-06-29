@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% block title %}Leave Details - HMS{% endblock %}
+{% block page_title %}Leave Request Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>{{ leave.get_leave_type_display }}</span>
+                <span class="badge bg-{% if leave.status == 'pending' %}warning{% elif leave.status == 'approved' %}success{% else %}danger{% endif %} fs-6">{{ leave.get_status_display }}</span>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <div class="col-md-4 text-center border-end">
+                        <h4>{{ leave.from_date|date:"M d" }}</h4>
+                        <small class="text-muted">From</small>
+                    </div>
+                    <div class="col-md-4 text-center border-end">
+                        <h4>{{ leave.to_date|date:"M d" }}</h4>
+                        <small class="text-muted">To</small>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <h4>{{ leave.duration }}</h4>
+                        <small class="text-muted">Days</small>
+                    </div>
+                </div>
+                <table class="table table-borderless">
+                    <tr><td class="text-muted" style="width:150px;">Student</td><td>{{ leave.student.name }} ({{ leave.student.student_id }})</td></tr>
+                    <tr><td class="text-muted">Room</td><td>{{ leave.student.room|default:'Not Assigned' }}</td></tr>
+                    <tr><td class="text-muted">Reason</td><td>{{ leave.reason }}</td></tr>
+                    {% if leave.contact_during_leave %}<tr><td class="text-muted">Contact</td><td>{{ leave.contact_during_leave }}</td></tr>{% endif %}
+                    <tr><td class="text-muted">Applied On</td><td>{{ leave.created_at|date:"M d, Y H:i" }}</td></tr>
+                    {% if leave.approved_by %}<tr><td class="text-muted">{% if leave.status == 'approved' %}Approved{% else %}Rejected{% endif %} By</td><td>{{ leave.approved_by.get_full_name|default:leave.approved_by.username }}</td></tr>{% endif %}
+                    {% if leave.admin_remarks %}<tr><td class="text-muted">Remarks</td><td>{{ leave.admin_remarks }}</td></tr>{% endif %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        {% if user.is_admin_user and leave.status == 'pending' %}
+        <div class="card">
+            <div class="card-header">Actions</div>
+            <div class="card-body d-grid gap-2">
+                <a href="{% url 'leave_requests:approve' leave.pk %}" class="btn btn-success"><i class="bi bi-check-lg me-2"></i>Approve</a>
+                <a href="{% url 'leave_requests:reject' leave.pk %}" class="btn btn-danger"><i class="bi bi-x-lg me-2"></i>Reject</a>
+            </div>
+        </div>
+        {% endif %}
+        <a href="{% url 'leave_requests:list' %}" class="btn btn-outline-secondary w-100 mt-3">Back to List</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Checkout Visitor - HMS{% endblock %}
+{% block page_title %}Checkout Visitor{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-warning">Confirm Checkout</div>
+            <div class="card-body">
+                <p>Are you sure you want to checkout this visitor?</p>
+                <div class="card bg-light mb-3">
+                    <div class="card-body">
+                        <h5>{{ visitor.visitor_name }}</h5>
+                        <p class="mb-0 text-muted">Visiting: {{ visitor.student.name }}</p>
+                        <small class="text-muted">Entry: {{ visitor.entry_time|date:"M d, Y H:i" }}</small>
+                    </div>
+                </div>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-warning"><i class="bi bi-box-arrow-right me-2"></i>Checkout</button>
+                        <a href="{% url 'visitors:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

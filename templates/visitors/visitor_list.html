@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+
+{% block title %}Visitors - HMS{% endblock %}
+{% block page_title %}Visitor Management{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <span class="badge bg-info me-2">Today: {{ today_visitors }}</span>
+        <span class="badge bg-success">Currently In: {{ currently_in }}</span>
+    </div>
+    <a href="{% url 'visitors:create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-2"></i>Register Visitor
+    </a>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">{{ form.search }}</div>
+            <div class="col-md-3">{{ form.date }}</div>
+            <div class="col-md-3">{{ form.status }}</div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-outline-primary w-100">
+                    <i class="bi bi-search me-2"></i>Filter
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Visitor</th>
+                        <th>Student</th>
+                        <th>Relationship</th>
+                        <th>Entry Time</th>
+                        <th>Exit Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visitor in page_obj %}
+                    <tr>
+                        <td>
+                            <strong>{{ visitor.visitor_name }}</strong>
+                            <small class="d-block text-muted">{{ visitor.phone }}</small>
+                        </td>
+                        <td><a href="{% url 'students:detail' visitor.student.pk %}">{{ visitor.student.name }}</a></td>
+                        <td>{{ visitor.get_relationship_display }}</td>
+                        <td>{{ visitor.entry_time|date:"M d, H:i" }}</td>
+                        <td>{{ visitor.exit_time|date:"M d, H:i"|default:'-' }}</td>
+                        <td>
+                            {% if visitor.exit_time %}
+                            <span class="badge bg-secondary">Checked Out</span>
+                            {% else %}
+                            <span class="badge bg-success">In</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if not visitor.exit_time %}
+                            <a href="{% url 'visitors:checkout' visitor.pk %}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-box-arrow-right"></i> Checkout
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'visitors:detail' visitor.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-center py-4">No visitors found</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+        {% for num in page_obj.paginator.page_range %}{% if page_obj.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>{% endif %}{% endfor %}
+        {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

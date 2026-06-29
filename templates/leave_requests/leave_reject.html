@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Reject Leave - HMS{% endblock %}
+{% block page_title %}Reject Leave Request{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">Reject Leave</div>
+            <div class="card-body">
+                <table class="table table-sm mb-4">
+                    <tr><td>Student:</td><td>{{ leave.student.name }}</td></tr>
+                    <tr><td>Type:</td><td>{{ leave.get_leave_type_display }}</td></tr>
+                    <tr><td>Duration:</td><td>{{ leave.from_date|date:"M d" }} - {{ leave.to_date|date:"M d" }} ({{ leave.duration }} days)</td></tr>
+                    <tr><td>Reason:</td><td>{{ leave.reason }}</td></tr>
+                </table>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Rejection Reason *</label>
+                        <textarea name="remarks" class="form-control" rows="2" required></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger"><i class="bi bi-x-lg me-2"></i>Reject</button>
+                        <a href="{% url 'leave_requests:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

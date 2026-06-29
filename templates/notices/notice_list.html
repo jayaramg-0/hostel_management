@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Notices - HMS{% endblock %}
+{% block page_title %}Notice Board{% endblock %}
+
+{% block content %}
+{% if user.is_admin_user %}
+<div class="d-flex justify-content-end mb-4">
+    <a href="{% url 'notices:create' %}" class="btn btn-primary"><i class="bi bi-plus-lg me-2"></i>Post Notice</a>
+</div>
+{% endif %}
+
+<div class="row">
+    {% for notice in page_obj %}
+    <div class="col-md-6 mb-4">
+        <div class="card h-100{% if notice.is_important %} border-danger{% endif %}">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>{% if notice.is_important %}<i class="bi bi-exclamation-circle text-danger me-2"></i>{% endif %}{{ notice.title|truncatechars:40 }}</span>
+                <span class="badge bg-{% if notice.target == 'all' %}primary{% elif notice.target == 'students' %}info{% else %}secondary{% endif %}">{{ notice.get_target_display }}</span>
+            </div>
+            <div class="card-body">
+                <p class="card-text">{{ notice.content|truncatechars:150 }}</p>
+            </div>
+            <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+                <small class="text-muted"><i class="bi bi-calendar me-1"></i>{{ notice.created_at|date:"M d, Y" }}</small>
+                <div>
+                    <a href="{% url 'notices:detail' notice.pk %}" class="btn btn-sm btn-outline-primary">Read More</a>
+                    {% if user.is_admin_user %}
+                    <a href="{% url 'notices:update' notice.pk %}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12"><div class="alert alert-info text-center">No notices posted</div></div>
+    {% endfor %}
+</div>
+
+{% if page_obj.has_other_pages %}
+<nav class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}"><i class="bi bi-chevron-left"></i></a></li>{% endif %}
+        {% for num in page_obj.paginator.page_range %}{% if page_obj.number == num %}<li class="page-item active"><span class="page-link">{{ num }}</span></li>{% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}<li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>{% endif %}{% endfor %}
+        {% if page_obj.has_next %}<li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}"><i class="bi bi-chevron-right"></i></a></li>{% endif %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

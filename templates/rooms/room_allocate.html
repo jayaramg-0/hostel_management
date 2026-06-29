@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}Allocate Student - HMS{% endblock %}
+{% block page_title %}Allocate Student to Room{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                Room {{ room.room_number }} (Floor {{ room.floor }})
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <strong>Available Beds:</strong> {{ room.available_beds }} / {{ room.capacity }}
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Select Student *</label>
+                        {{ form.student }}
+                        <small class="text-muted">Only students without room allocation are shown</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-person-plus me-2"></i>Allocate
+                        </button>
+                        <a href="{% url 'rooms:detail' room.pk %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

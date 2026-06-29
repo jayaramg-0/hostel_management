@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - HMS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+{% if no_profile %}
+<div class="alert alert-warning">
+    <i class="bi bi-exclamation-triangle me-2"></i>
+    Your student profile has not been set up yet. Please contact the hostel administrator.
+</div>
+{% else %}
+
+<!-- Welcome Section -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row align-items-center">
+            <div class="col-auto">
+                {% if student.profile_photo %}
+                <img src="{{ student.profile_photo.url }}" alt="Profile" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-size: 2rem;">
+                    {{ student.name|slice:":1"|upper }}
+                </div>
+                {% endif %}
+            </div>
+            <div class="col">
+                <h4 class="mb-1">Welcome, {{ student.name }}!</h4>
+                <p class="text-muted mb-0">{{ student.department }} - {{ student.get_year_display }}</p>
+                <small class="text-muted">Student ID: {{ student.student_id }}</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value">{{ attendance_percentage }}%</div>
+                    <div class="stat-label">Attendance</div>
+                </div>
+                <div class="stat-icon bg-{% if attendance_percentage >= 75 %}success{% else %}danger{% endif %} bg-opacity-10 text-{% if attendance_percentage >= 75 %}success{% else %}danger{% endif %}">
+                    <i class="bi bi-calendar-check"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value text-{% if pending_fees > 0 %}danger{% else %}success{% endif %}">₹{{ pending_fees|floatformat:0 }}</div>
+                    <div class="stat-label">Pending Fees</div>
+                </div>
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-cash-stack"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value">{{ pending_complaints_count }}</div>
+                    <div class="stat-label">Pending Complaints</div>
+                </div>
+                <div class="stat-icon bg-info bg-opacity-10 text-info">
+                    <i class="bi bi-exclamation-triangle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="stat-card">
+            <div class="d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="stat-value">{{ pending_leaves_count }}</div>
+                    <div class="stat-label">Pending Leaves</div>
+                </div>
+                <div class="stat-icon bg-purple bg-opacity-10" style="color: #8b5cf6;">
+                    <i class="bi bi-calendar-x"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Room & Quick Actions -->
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Room Details</div>
+            <div class="card-body">
+                {% if room %}
+                <table class="table table-borderless mb-0">
+                    <tr>
+                        <td class="text-muted" style="width: 150px;">Room Number</td>
+                        <td><strong>{{ room.room_number }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Floor</td>
+                        <td>{{ room.floor }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Capacity</td>
+                        <td>{{ room.capacity }} beds</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Occupied</td>
+                        <td>{{ room.occupied_beds }} / {{ room.capacity }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Status</td>
+                        <td>
+                            <span class="badge bg-{% if room.status == 'available' %}success{% else %}warning{% endif %}">
+                                {{ room.get_status_display }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-house text-muted" style="font-size: 3rem;"></i>
+                    <p class="text-muted mt-2 mb-0">No room allocated yet</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">Quick Actions</div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'complaints:create' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-exclamation-triangle me-2"></i>Submit Complaint
+                    </a>
+                    <a href="{% url 'leave_requests:create' %}" class="btn btn-outline-info">
+                        <i class="bi bi-calendar-x me-2"></i>Apply for Leave
+                    </a>
+                    <a href="{% url 'fees:list' %}" class="btn btn-outline-warning">
+                        <i class="bi bi-cash-stack me-2"></i>View Fees
+                    </a>
+                    <a href="{% url 'notices:list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-megaphone me-2"></i>View Notices
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Sections -->
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Recent Attendance</span>
+                <a href="{% url 'attendance:student' student.pk %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_attendance %}
+                <ul class="list-group list-group-flush">
+                    {% for att in recent_attendance %}
+                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span>{{ att.date|date:"M d, Y" }}</span>
+                        <span class="badge bg-{% if att.status == 'present' %}success{% else %}danger{% endif %}">
+                            {{ att.get_status_display }}
+                        </span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0">No attendance records</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>My Complaints</span>
+                <a href="{% url 'complaints:list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_complaints %}
+                <ul class="list-group list-group-flush">
+                    {% for complaint in recent_complaints %}
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <strong>{{ complaint.subject|truncatechars:25 }}</strong>
+                                <small class="d-block text-muted">{{ complaint.created_at|date:"M d" }}</small>
+                            </div>
+                            <span class="badge bg-{% if complaint.status == 'pending' %}warning{% elif complaint.status == 'in_progress' %}info{% else %}success{% endif %}">
+                                {{ complaint.get_status_display }}
+                            </span>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0">No complaints</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span>Latest Notices</span>
+                <a href="{% url 'notices:list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+            </div>
+            <div class="card-body p-0">
+                {% if recent_notices %}
+                <ul class="list-group list-group-flush">
+                    {% for notice in recent_notices %}
+                    <li class="list-group-item">
+                        <a href="{% url 'notices:detail' notice.pk %}" class="text-decoration-none">
+                            <strong class="text-dark">{{ notice.title|truncatechars:30 }}</strong>
+                            <small class="d-block text-muted">{{ notice.posted_date|date:"M d, Y" }}</small>
+                        </a>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted text-center py-4 mb-0">No notices</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pending Fees Alert -->
+{% if pending_fee_records %}
+<div class="card mt-4 border-danger">
+    <div class="card-header bg-danger text-white">
+        <i class="bi bi-exclamation-circle me-2"></i>Pending Fee Payments
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th>Fee Type</th>
+                        <th>Amount</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for fee in pending_fee_records %}
+                    <tr>
+                        <td>{{ fee.get_fee_type_display }}</td>
+                        <td>₹{{ fee.amount|floatformat:2 }}</td>
+                        <td>{{ fee.due_date|date:"M d, Y" }}</td>
+                        <td>
+                            {% if fee.is_overdue %}
+                            <span class="badge bg-danger">Overdue</span>
+                            {% else %}
+                            <span class="badge bg-warning">Unpaid</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% endif %}
+{% endblock %}

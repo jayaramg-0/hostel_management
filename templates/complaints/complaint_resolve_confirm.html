@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Resolve Complaint - HMS{% endblock %}
+{% block page_title %}Resolve Complaint{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-header bg-success text-white">Mark as Resolved</div>
+            <div class="card-body">
+                <p>{{ complaint.complaint_id }}: {{ complaint.subject }}</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label">Resolution Remarks</label>
+                        <textarea name="remarks" class="form-control" rows="3" placeholder="Add resolution details..."></textarea>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-success"><i class="bi bi-check-lg me-2"></i>Resolve</button>
+                        <a href="{% url 'complaints:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

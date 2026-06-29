@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - HMS{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-body text-center">
+                {% if user.profile_photo %}
+                <img src="{{ user.profile_photo.url }}" alt="Profile" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover;">
+                {% else %}
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 120px; height: 120px; font-size: 2.5rem;">
+                    {{ user.first_name|slice:":1"|upper }}{{ user.last_name|slice:":1"|upper }}
+                </div>
+                {% endif %}
+                <h4>{{ user.get_full_name|default:user.username }}</h4>
+                <span class="badge bg-{{ user.role|default:'secondary' }}">{{ user.get_role_display }}</span>
+                <p class="text-muted mt-2 mb-0">{{ user.email }}</p>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">Quick Actions</div>
+            <div class="card-body">
+                <a href="{% url 'accounts:profile_update' %}" class="btn btn-outline-primary w-100 mb-2">
+                    <i class="bi bi-pencil me-2"></i>Edit Profile
+                </a>
+                <a href="{% url 'accounts:change_password' %}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-key me-2"></i>Change Password
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">Profile Information</div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td class="text-muted" style="width: 200px;">Full Name</td>
+                        <td>{{ user.get_full_name|default:'-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Username</td>
+                        <td>{{ user.username }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Email</td>
+                        <td>{{ user.email|default:'-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Phone</td>
+                        <td>{{ user.phone|default:'-' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Role</td>
+                        <td><span class="badge bg-primary">{{ user.get_role_display }}</span></td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Member Since</td>
+                        <td>{{ user.date_joined|date:"F d, Y" }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Last Login</td>
+                        <td>{{ user.last_login|date:"F d, Y H:i"|default:'-' }}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        {% if user.is_student_user and user.student_profile %}
+        <div class="card">
+            <div class="card-header">Student Information</div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr>
+                        <td class="text-muted" style="width: 200px;">Student ID</td>
+                        <td>{{ user.student_profile.student_id }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Department</td>
+                        <td>{{ user.student_profile.department }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Year</td>
+                        <td>{{ user.student_profile.get_year_display }}</td>
+                    </tr>
+                    <tr>
+                        <td class="text-muted">Room</td>
+                        <td>
+                            {% if user.student_profile.room %}
+                            Room {{ user.student_profile.room.room_number }} (Floor {{ user.student_profile.room.floor }})
+                            {% else %}
+                            <span class="text-muted">Not Allocated</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

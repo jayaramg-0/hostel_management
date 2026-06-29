@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Mark Attendance - HMS{% endblock %}
+{% block page_title %}Mark Daily Attendance{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <span>Attendance for {{ today }}</span>
+            <span class="badge bg-info">{{ students|length }} Students</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" class="form-control" value="{{ today }}" style="max-width: 200px;">
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Student</th>
+                            <th>Department</th>
+                            <th>Room</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>
+                                <strong>{{ student.name }}</strong>
+                                <small class="d-block text-muted">{{ student.student_id }}</small>
+                            </td>
+                            <td>{{ student.department }}</td>
+                            <td>{{ student.room.room_number|default:'-' }}</td>
+                            <td>
+                                <select name="student_{{ student.pk }}" class="form-select form-select-sm" style="width: 120px;">
+                                    <option value="present" {% if existing_attendance|get_item:student.pk == 'present' %}selected{% endif %}>Present</option>
+                                    <option value="absent" {% if existing_attendance|get_item:student.pk == 'absent' %}selected{% endif %}>Absent</option>
+                                </select>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4">No students with room allocation found</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            {% if students %}
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg me-2"></i>Save Attendance
+                </button>
+                <a href="{% url 'attendance:list' %}" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+{% endblock %}
