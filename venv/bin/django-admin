@@ -1,4 +1,4 @@
-#!/home/ravi-zstk379/Documents/Projects/hostel_management/venv/bin/python3
+#!/home/jayaram/Documents/PyProjects/hostel_management/venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
